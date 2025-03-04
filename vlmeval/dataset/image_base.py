@@ -4,6 +4,8 @@ from ..smp import *
 
 
 def img_root_map(dataset):
+    if 'MM_NIAH' in dataset:
+        return 'MMNIAH'
     if 'CRPE' in dataset:
         return 'CRPE'
     if 'OCRVQA' in dataset:
@@ -12,6 +14,9 @@ def img_root_map(dataset):
         return 'COCO'
     if 'MMMU' in dataset:
         return 'MMMU'
+    if "QSpatial" in dataset:
+        return "QSpatial"
+
     mmbench_root_map = {
         'MMBench_DEV_EN': 'MMBench', 'MMBench_TEST_EN': 'MMBench',
         'MMBench_DEV_CN': 'MMBench', 'MMBench_TEST_CN': 'MMBench',
@@ -82,6 +87,7 @@ class ImageBaseDataset:
         update_flag = False
         file_name = url.split('/')[-1]
         data_path = osp.join(data_root, file_name)
+        self.data_path=data_path
         if osp.exists(data_path) and (file_md5 is None or md5(data_path) == file_md5):
             pass
         else:
@@ -133,7 +139,9 @@ class ImageBaseDataset:
 
     # Given the dataset name, return the dataset as a pandas dataframe, can override
     def load_data(self, dataset):
-        url = self.DATASET_URL[dataset]
+        url = self.DATASET_URL.get(dataset, None)
+        if url is None or url == '':
+            url = dataset + '.tsv'
         file_md5 = self.DATASET_MD5[dataset] if dataset in self.DATASET_MD5 else None
         return self.prepare_tsv(url, file_md5)
 

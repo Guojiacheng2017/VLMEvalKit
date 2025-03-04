@@ -38,12 +38,12 @@ class OpenAIWrapper(BaseAPI):
                  retry: int = 5,
                  wait: int = 5,
                  key: str = None,
-                 verbose: bool = True,
+                 verbose: bool = False,
                  system_prompt: str = None,
                  temperature: float = 0,
                  timeout: int = 60,
                  api_base: str = None,
-                 max_tokens: int = 1024,
+                 max_tokens: int = 2048,
                  img_size: int = 512,
                  img_detail: str = 'low',
                  use_azure: bool = False,
@@ -56,12 +56,28 @@ class OpenAIWrapper(BaseAPI):
         self.temperature = temperature
         self.use_azure = use_azure
 
-        if 'step-1v' in model:
+        if 'step' in model:
             env_key = os.environ.get('STEPAI_API_KEY', '')
             if key is None:
                 key = env_key
         elif 'yi-vision' in model:
             env_key = os.environ.get('YI_API_KEY', '')
+            if key is None:
+                key = env_key
+        elif 'internvl2-pro' in model:
+            env_key = os.environ.get('InternVL2_PRO_KEY', '')
+            if key is None:
+                key = env_key
+        elif 'abab' in model:
+            env_key = os.environ.get('MiniMax_API_KEY', '')
+            if key is None:
+                key = env_key
+        elif 'moonshot' in model:
+            env_key = os.environ.get('MOONSHOT_API_KEY', '')
+            if key is None:
+                key = env_key
+        elif 'grok' in model:
+            env_key = os.environ.get('XAI_API_KEY', '')
             if key is None:
                 key = env_key
         else:
@@ -124,7 +140,7 @@ class OpenAIWrapper(BaseAPI):
                 self.api_base = api_base
             else:
                 self.logger.error('Unknown API Base. ')
-                sys.exit(-1)
+                raise NotImplementedError
 
         self.logger.info(f'Using API Base: {self.api_base}; API Key: {self.key}')
 
@@ -169,19 +185,22 @@ class OpenAIWrapper(BaseAPI):
         temperature = kwargs.pop('temperature', self.temperature)
         max_tokens = kwargs.pop('max_tokens', self.max_tokens)
 
-        context_window = GPT_context_window(self.model)
-        max_tokens = min(max_tokens, context_window - self.get_token_len(inputs))
-        if 0 < max_tokens <= 100:
-            self.logger.warning(
-                'Less than 100 tokens left, '
-                'may exceed the context window with some additional meta symbols. '
-            )
-        if max_tokens <= 0:
-            return 0, self.fail_msg + 'Input string longer than context window. ', 'Length Exceeded. '
+        # context_window = GPT_context_window(self.model)
+        # new_max_tokens = min(max_tokens, context_window - self.get_token_len(inputs))
+        # if 0 < new_max_tokens <= 100 and new_max_tokens < max_tokens:
+        #     self.logger.warning(
+        #         'Less than 100 tokens left, '
+        #         'may exceed the context window with some additional meta symbols. '
+        #     )
+        # if new_max_tokens <= 0:
+        #     return 0, self.fail_msg + 'Input string longer than context window. ', 'Length Exceeded. '
+        # max_tokens = new_max_tokens
 
         # Will send request if use Azure, dk how to use openai client for it
         if self.use_azure:
             headers = {'Content-Type': 'application/json', 'api-key': self.key}
+        elif 'internvl2-pro' in self.model:
+            headers = {'Content-Type': 'application/json', 'Authorization': self.key}
         else:
             headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {self.key}'}
         payload = dict(
@@ -200,8 +219,11 @@ class OpenAIWrapper(BaseAPI):
         try:
             resp_struct = json.loads(response.text)
             answer = resp_struct['choices'][0]['message']['content'].strip()
-        except:
-            pass
+        except Exception as err:
+            if self.verbose:
+                self.logger.error(f'{type(err)}: {err}')
+                self.logger.error(response.text if hasattr(response, 'text') else response)
+
         return ret_code, answer, response
 
     def get_image_token_len(self, img_path, detail='low'):
@@ -228,8 +250,13 @@ class OpenAIWrapper(BaseAPI):
         import tiktoken
         try:
             enc = tiktoken.encoding_for_model(self.model)
-        except:
-            enc = tiktoken.encoding_for_model('gpt-4')
+        except Exception as err:
+            if 'gpt' in self.model.lower():
+                if self.verbose:
+                    self.logger.warning(f'{type(err)}: {err}')
+                enc = tiktoken.encoding_for_model('gpt-4')
+            else:
+                return 0
         assert isinstance(inputs, list)
         tot = 0
         for item in inputs:

@@ -16,13 +16,11 @@ class GeminiWrapper(BaseAPI):
                  verbose: bool = True,
                  temperature: float = 0.0,
                  system_prompt: str = None,
-                 max_tokens: int = 1024,
+                 max_tokens: int = 2048,
                  proxy: str = None,
                  backend='genai',
                  project_id='vlmeval',
                  **kwargs):
-
-        assert model in ['gemini-1.0-pro', 'gemini-1.5-pro', 'gemini-1.5-flash']
 
         self.model = model
         self.fail_msg = 'Failed to obtain answer via API. '
@@ -77,7 +75,6 @@ class GeminiWrapper(BaseAPI):
             if pure_text and self.model == 'gemini-1.0-pro':
                 model = genai.GenerativeModel('gemini-1.0-pro')
             else:
-                assert self.model in ['gemini-1.5-pro', 'gemini-1.5-flash']
                 model = genai.GenerativeModel(self.model)
 
             messages = self.build_msgs_genai(inputs)
@@ -90,7 +87,7 @@ class GeminiWrapper(BaseAPI):
                 return 0, answer, 'Succeeded! '
             except Exception as err:
                 if self.verbose:
-                    self.logger.error(err)
+                    self.logger.error(f'{type(err)}: {err}')
                     self.logger.error(f'The input messages are {inputs}.')
 
                 return -1, '', ''
@@ -107,7 +104,7 @@ class GeminiWrapper(BaseAPI):
                 return 0, answer, 'Succeeded! '
             except Exception as err:
                 if self.verbose:
-                    self.logger.error(err)
+                    self.logger.error(f'{type(err)}: {err}')
                     self.logger.error(f'The input messages are {inputs}.')
 
                 return -1, '', ''

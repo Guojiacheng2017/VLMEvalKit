@@ -3,7 +3,7 @@ import warnings
 from .image_base import ImageBaseDataset
 from .utils import build_judge, DEBUG_MESSAGE
 from ..smp import *
-
+import pandas as pd
 
 MMMB_URLS = {
     'MMMB_ar': 'https://huggingface.co/datasets/AIDC-AI/Parrot-dataset/resolve/main/mmmb/mmmb_ar.tsv',
@@ -42,31 +42,31 @@ class ImageMCQDataset(ImageBaseDataset):
 
     DATASET_URL = {
         # MMBench v1.0
-        'MMBench_DEV_EN': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_DEV_EN.tsv',
-        'MMBench_TEST_EN': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_TEST_EN.tsv',
-        'MMBench_DEV_CN': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_DEV_CN.tsv',
-        'MMBench_TEST_CN': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_TEST_CN.tsv',
-        'MMBench': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench.tsv',  # Internal Only
-        'MMBench_CN': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_CN.tsv',    # Internal Only
+        'MMBench_DEV_EN': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_DEV_EN.tsv',
+        'MMBench_TEST_EN': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_TEST_EN.tsv',
+        'MMBench_DEV_CN': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_DEV_CN.tsv',
+        'MMBench_TEST_CN': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_TEST_CN.tsv',
+        'MMBench': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench.tsv',  # Internal
+        'MMBench_CN': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_CN.tsv',  # Internal
         # MMBench v1.1
-        'MMBench_DEV_EN_V11': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_DEV_EN_V11.tsv',
-        'MMBench_TEST_EN_V11': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_TEST_EN_V11.tsv',
-        'MMBench_DEV_CN_V11': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_DEV_CN_V11.tsv',
-        'MMBench_TEST_CN_V11': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_TEST_CN_V11.tsv',
-        'MMBench_V11': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_V11.tsv',  # Internal Only
-        'MMBench_CN_V11': 'https://opencompass.openxlab.space/utils/VLMEval/MMBench_CN_V11.tsv',    # Internal Only
+        'MMBench_DEV_EN_V11': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_DEV_EN_V11.tsv',
+        'MMBench_TEST_EN_V11': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_TEST_EN_V11.tsv',
+        'MMBench_DEV_CN_V11': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_DEV_CN_V11.tsv',
+        'MMBench_TEST_CN_V11': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_TEST_CN_V11.tsv',
+        'MMBench_V11': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_V11.tsv',  # Internal
+        'MMBench_CN_V11': 'https://opencompass.openxlab.space/utils/benchmarks/MMBench/MMBench_CN_V11.tsv',  # Internal
         # SEEDBench Series
-        'SEEDBench_IMG': 'https://opencompass.openxlab.space/utils/VLMEval/SEEDBench_IMG.tsv',
+        'SEEDBench_IMG': 'https://opencompass.openxlab.space/utils/benchmarks/SEEDBench/SEEDBench_IMG.tsv',
         'SEEDBench2': 'https://huggingface.co/datasets/VLMEval/SEEDBench2/resolve/main/SEEDBench2.tsv',
-        'SEEDBench2_Plus': 'https://opencompass.openxlab.space/utils/VLMEval/SEEDBench2_Plus.tsv',
+        'SEEDBench2_Plus': 'https://opencompass.openxlab.space/utils/benchmarks/SEEDBench/SEEDBench2_Plus.tsv',
         # ScienceQA Series
-        'ScienceQA_VAL': 'https://opencompass.openxlab.space/utils/VLMEval/ScienceQA_VAL.tsv',
-        'ScienceQA_TEST': 'https://opencompass.openxlab.space/utils/VLMEval/ScienceQA_TEST.tsv',
+        'ScienceQA_VAL': 'https://opencompass.openxlab.space/utils/benchmarks/ScienceQA/ScienceQA_VAL.tsv',
+        'ScienceQA_TEST': 'https://opencompass.openxlab.space/utils/benchmarks/ScienceQA/ScienceQA_TEST.tsv',
         # MMT-Bench
-        'MMT-Bench_ALL_MI': 'https://opencompass.openxlab.space/utils/VLMEval/MMT-Bench_ALL_MI.tsv',
-        'MMT-Bench_ALL': 'https://opencompass.openxlab.space/utils/VLMEval/MMT-Bench_ALL.tsv',
-        'MMT-Bench_VAL_MI': 'https://opencompass.openxlab.space/utils/VLMEval/MMT-Bench_VAL_MI.tsv',
-        'MMT-Bench_VAL': 'https://opencompass.openxlab.space/utils/VLMEval/MMT-Bench_VAL.tsv',
+        'MMT-Bench_ALL_MI': 'https://opencompass.openxlab.space/utils/benchmarks/MMT-Bench/MMT-Bench_ALL_MI.tsv',
+        'MMT-Bench_ALL': 'https://opencompass.openxlab.space/utils/benchmarks/MMT-Bench/MMT-Bench_ALL.tsv',
+        'MMT-Bench_VAL_MI': 'https://opencompass.openxlab.space/utils/benchmarks/MMT-Bench/MMT-Bench_VAL_MI.tsv',
+        'MMT-Bench_VAL': 'https://opencompass.openxlab.space/utils/benchmarks/MMT-Bench/MMT-Bench_VAL.tsv',
         # AesBench
         'AesBench_VAL': 'https://huggingface.co/datasets/VLMEval/AesBench/resolve/main/AesBench_VAL.tsv',
         'AesBench_TEST': 'https://huggingface.co/datasets/VLMEval/AesBench/resolve/main/AesBench_TEST.tsv',
@@ -90,7 +90,21 @@ class ImageMCQDataset(ImageBaseDataset):
         'TaskMeAnything_v1_imageqa_random': (
             'https://huggingface.co/datasets/weikaih/TaskMeAnything-v1-imageqa-random/'
             'resolve/main/TaskMeAnything-v1-imageqa-random.tsv'
-        )
+        ),
+        'A-OKVQA': 'https://huggingface.co/datasets/Allen8/A-OKVQA/resolve/main/a-okvqa.tsv',
+        'WorldMedQA-V': 'https://opencompass.openxlab.space/utils/VLMEval/WorldMedQA-V.tsv',
+        'VisOnlyQA-VLMEvalKit': (
+            'https://huggingface.co/datasets/ryokamoi/VisOnlyQA_Eval_Real/'
+            'resolve/main/visonlyqa_vlmevalkit.tsv'
+        ),
+        '3DSRBench': (
+            'https://huggingface.co/datasets/ccvl/3DSRBench/'
+            'resolve/main/3dsrbench_v1_vlmevalkit_circular.tsv'
+        ),
+        # For Internal Use Only
+        'MMBench_V11_MINI': 'https://opencompass.openxlab.space/utils/TEST/MMBench_V11_MINI.tsv',
+        'MMStar_MINI': 'https://opencompass.openxlab.space/utils/TEST/MMStar_MINI.tsv',
+        'AI2D_MINI': 'https://opencompass.openxlab.space/utils/TEST/AI2D_MINI.tsv',
     }
 
     DATASET_MD5 = {
@@ -111,7 +125,7 @@ class ImageMCQDataset(ImageBaseDataset):
         # SEEDBench
         'SEEDBench_IMG': '68017231464752261a2526d6ca3a10c0',
         'SEEDBench2': '4ec15cf864c4f16274112284f531813e',
-        'SEEDBench2_Plus': 'e32d3216dc4f452b0fe497a52015d1fd',
+        'SEEDBench2_Plus': '7cb2323950d71f049df70e5162062af3',
         # ScienceQA
         'ScienceQA_VAL': '96320d05e142e585e7204e72affd29f3',
         'ScienceQA_TEST': 'e42e9e00f9c59a80d8a5db35bc32b71f',
@@ -137,10 +151,13 @@ class ImageMCQDataset(ImageBaseDataset):
         'AI2D_TEST': '0f593e0d1c7df9a3d69bf1f947e71975',
         'AI2D_TEST_NO_MASK': 'fd8f463634d4fe9fbd23b876e8eea5be',
         'MMStar': 'e1ecd2140806c1b1bbf54b43372efb9e',
-        'RealWorldQA': '92321028d2bc29040284b6674721e48f',
+        'RealWorldQA': '4de008f55dc4fd008ca9e15321dc44b7',
         'MLLMGuard_DS': '975fc0dd7119386e198c37d71e274b3f',
         'BLINK': '3b6649b6a662184ea046908e5506260e',
-        'TaskMeAnything_v1_imageqa_random': '023fef69e2ca21827afb77c5ec3bc889'
+        'TaskMeAnything_v1_imageqa_random': '023fef69e2ca21827afb77c5ec3bc889',
+        'WorldMedQA-V': '441e63875e30c87f5750528b57b41285',
+        "VisOnlyQA-VLMEvalKit": 'cf460a31d2acb8d3a7cecd0e69298bfa',
+        '3DSRBench': '13a99f33164dc1b9faf0e8b8b01fd6f2',
     }
 
     DATASET_URL.update(MMMB_URLS)
@@ -198,7 +215,7 @@ class ImageMCQDataset(ImageBaseDataset):
         nproc = judge_kwargs.pop('nproc', 4)
 
         circular = False
-        if listinstr(['mmbench', 'ccbench'], dataset.lower()):
+        if listinstr(['mmbench', 'ccbench', 'circular'], dataset.lower()):
             data = load(eval_file)
             data['index'] = [int(x) for x in data['index']]
             dump(data, eval_file)
@@ -261,6 +278,12 @@ class ImageMCQDataset(ImageBaseDataset):
             warnings.warn('Note that AesBench VAL is just a toy version of AesBench TEST. For full results, \
                            please evaluate on AesBench TEST. The AesBench TEST dataset is more than 20 times \
                            larger than the VAL dataset and the leaderboard results are based on AesBench TEST.')
+        if dataset == 'VisOnlyQA-VLMEvalKit':
+            warnings.warn('Note that the results on VisOnlyQA-VLMEvalKit are different from the results on \
+                           the original VisOnlyQA. VisOnlyQA-VLMEvalKit does not include the \
+                           chemistry__shape_multi split and uses a different evaluation prompt. Please \
+                           explicitly specify the version of the dataset when you report results.')
+
         return acc
 
 
@@ -272,7 +295,7 @@ class MMMUDataset(ImageMCQDataset):
     }
 
     DATASET_MD5 = {
-        'MMMU_DEV_VAL': '521afc0f3bf341e6654327792781644d',
+        'MMMU_DEV_VAL': '585e8ad75e73f75dcad265dfd0417d64',
         'MMMU_TEST': 'c19875d11a2d348d07e5eb4bdf33166d',
     }
 
@@ -303,6 +326,113 @@ class MMMUDataset(ImageMCQDataset):
         msgs = super().build_prompt(line)
         msgs = self.split_MMMU(msgs)
         return msgs
+
+
+class MMMUProDataset(MMMUDataset):
+
+    TYPE = 'MCQ_MMMU_Pro'
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if 'MMMU_Pro_V' in self.dataset_name:
+            self.data['question'] = ['placeholder'] * len(self.data)
+
+    DATASET_URL = {
+        'MMMU_Pro_10c': 'https://opencompass.openxlab.space/utils/VLMEval/MMMU_Pro_10c.tsv',
+        'MMMU_Pro_10c_COT': 'https://opencompass.openxlab.space/utils/VLMEval/MMMU_Pro_10c.tsv',
+        'MMMU_Pro_V': 'https://opencompass.openxlab.space/utils/VLMEval/MMMU_Pro_V.tsv',
+        'MMMU_Pro_V_COT': 'https://opencompass.openxlab.space/utils/VLMEval/MMMU_Pro_V.tsv',
+    }
+
+    DATASET_MD5 = {
+        'MMMU_Pro_10c': '22cee868fe6b680d14b99bfff6db8172',
+        'MMMU_Pro_10c_COT': '22cee868fe6b680d14b99bfff6db8172',
+        'MMMU_Pro_V': 'd01441a87b3dbe721b5a04652ae38009',
+        'MMMU_Pro_V_COT': 'd01441a87b3dbe721b5a04652ae38009',
+    }
+
+    def build_prompt(self, line):
+        if isinstance(line, int):
+            line = self.data.iloc[line]
+
+        if self.meta_only:
+            tgt_path = toliststr(line['image_path'])
+        else:
+            tgt_path = self.dump_image(line)
+        
+        if 'MMMU_Pro_V' in self.dataset_name:
+            question = 'Answer the following multiple-choice question in the image. '
+            if 'COT' in self.dataset_name:
+                question += (
+                    "The last line of your response should be of the following format: 'Answer: $LETTER' "
+                    "(without quotes) where LETTER is one of the options. Think step by step before answering. "
+                )
+            else:
+                question += "Answer directly with the option letter from the given choices. "
+            if isinstance(tgt_path, list):
+                assert len(tgt_path) == 1
+                tgt_path = tgt_path[0]
+            return [dict(type='image', value=tgt_path), dict(type='text', value=question)]
+        else:
+            question = line['question']
+            options = {
+                cand: line[cand]
+                for cand in string.ascii_uppercase
+                if cand in line and not pd.isna(line[cand])
+            }
+            options_prompt = 'Options:\n'
+            for key, item in options.items():
+                options_prompt += f'{key}. {item}\n'
+            prompt = ''
+            prompt += f'Question: {question}\n'
+            if len(options):
+                prompt += options_prompt
+                if 'COT' in self.dataset_name:
+                    prompt += (
+                        "Answer the following multiple-choice question. The last line of your response should be of "
+                        "the following format: 'Answer: $LETTER' (without quotes) where LETTER is one of the options. "
+                        "Think step by step before answering. "
+                    )
+                else:
+                    prompt += "Answer directly with the option letter from the given choices. "
+
+            msgs = []
+            if isinstance(tgt_path, list):
+                msgs.extend([dict(type='image', value=p) for p in tgt_path])
+            else:
+                msgs = [dict(type='image', value=tgt_path)]
+            msgs.append(dict(type='text', value=prompt))
+            msgs = self.split_MMMU(msgs)
+            return msgs
+
+    def cot_postproc(self, response):
+        lines = response.strip().split('\n')
+        lines = [x.strip() for x in lines]
+        cands = [x for x in lines if x.startswith('Answer:')]
+        if len(cands) == 1:
+            counter = defaultdict(lambda: 0)
+            for ch in cands[0]:
+                if ch in string.ascii_uppercase:
+                    counter[ch] += 1
+            if len(counter) == 1:
+                return list(counter.keys())[0]
+            else:
+                return cands[0][7:]
+        return response
+
+    def evaluate(self, eval_file, **judge_kwargs):
+        if 'COT' in self.dataset_name:
+            data = load(eval_file)
+            data['prediction'] = [self.cot_postproc(x) for x in data['prediction']]
+            tgt = eval_file.replace('.xlsx', '_cotpost.xlsx')
+            dump(data, tgt)
+            res = super().evaluate(tgt, **judge_kwargs)
+            acc_org = eval_file.replace('.xlsx', '_acc.csv')
+            acc_now = eval_file.replace('.xlsx', '_cotpost_acc.csv') 
+            shutil.copy(acc_now, acc_org)
+            return res
+        else:
+            return super().evaluate(eval_file, **judge_kwargs)  
 
 
 class MUIRDataset(ImageMCQDataset):
@@ -540,10 +670,16 @@ class MMERealWorld(ImageMCQDataset):
 
     DATASET_MD5 = {
         'MME-RealWorld': '271c33ec814c39533c467ec6fb8a6f36',
+        'MME-RealWorld-Lite': '4c17057d7d3b6c4a0d4397c3dae0881c',
         'MME-RealWorld-CN': 'daaa763d52a760a38606d5dedb3fe444',
     }
     SYS = {
         'MME-RealWorld': (
+            'Select the best answer to the above multiple-choice question based on the image. '
+            'Respond with only the letter (A, B, C, D, or E) of the correct option. \n'
+            'The best answer is:'
+        ),
+        'MME-RealWorld-Lite': (
             'Select the best answer to the above multiple-choice question based on the image. '
             'Respond with only the letter (A, B, C, D, or E) of the correct option. \n'
             'The best answer is:'
@@ -556,12 +692,14 @@ class MMERealWorld(ImageMCQDataset):
 
     @classmethod
     def supported_datasets(cls):
-        return ['MME-RealWorld', 'MME-RealWorld-CN']
+        return ['MME-RealWorld', 'MME-RealWorld-CN', 'MME-RealWorld-Lite',]
 
-    def load_data(self, dataset='MME-RealWorld', repo_id='yifanzhang114/MME-RealWorld-Base64'):
+    def load_data(
+        self, dataset="MME-RealWorld", repo_id="yifanzhang114/MME-RealWorld-Base64"
+    ):
 
         def check_integrity(pth):
-            data_file = osp.join(pth, f'{dataset}.tsv')
+            data_file = osp.join(pth, f"{dataset}.tsv")
 
             if not os.path.exists(data_file):
                 return False
@@ -571,57 +709,89 @@ class MMERealWorld(ImageMCQDataset):
             return True
 
         def generate_tsv(pth):
-            tsv_file = os.path.join(pth, f'{dataset}.tsv')
+            tsv_file = os.path.join(pth, f"{dataset}.tsv")
 
             if os.path.exists(tsv_file):
-                print(f'{tsv_file} already exists.')
+                print(f"{tsv_file} already exists.")
                 return
 
             json_dir = os.path.join(pth, dataset)
-            json_files = [f for f in os.listdir(json_dir) if f.endswith('.json')]
+            json_files = [f for f in os.listdir(json_dir) if f.endswith(".json")]
 
             data_list = []
             for json_file in json_files:
-                with open(os.path.join(json_dir, json_file), 'r') as f:
+                with open(os.path.join(json_dir, json_file), "r") as f:
                     data = json.load(f)
                     for item in tqdm(data):
-                        choice_prompt = 'The choices are listed below:\n' if dataset == 'MME-RealWorld' else '选项如下所示:\n'
-                        data_list.append({
-                            'index': item['index'],
-                            'image': item['image'],
-                            'question': item['question'],
-                            'multi-choice options': choice_prompt + '\n'.join(item['multi-choice options']),
-                            'A': item['multi-choice options'][0][4:],
-                            'B': item['multi-choice options'][1][4:],
-                            'C': item['multi-choice options'][2][4:],
-                            'D': item['multi-choice options'][3][4:],
-                            'E': item['multi-choice options'][4][4:],
-                            'answer': item['answer'],
-                            'category': item['category'],
-                            'l2-category': item['l2-category']
-                        })
+                        choice_prompt = (
+                            "The choices are listed below:\n"
+                            if dataset in ["MME-RealWorld", "MME-RealWorld-Lite"]
+                            else "选项如下所示:\n"
+                        )
+                        data_list.append(
+                            {
+                                "index": item["index"],
+                                "image": item["image"],
+                                "question": item["question"],
+                                "multi-choice options": choice_prompt
+                                + "\n".join(item["multi-choice options"]),
+                                "A": item["multi-choice options"][0][4:],
+                                "B": item["multi-choice options"][1][4:],
+                                "C": item["multi-choice options"][2][4:],
+                                "D": item["multi-choice options"][3][4:],
+                                "E": item["multi-choice options"][4][4:],
+                                "answer": item["answer"],
+                                "category": item["category"],
+                                "l2-category": item["l2-category"],
+                            }
+                        )
             df = pd.DataFrame(data_list)
-            df.to_csv(tsv_file, sep='\t', index=False)
-            print(f'TSV file saved to {tsv_file}')
+            df.to_csv(tsv_file, sep="\t", index=False)
+            print(f"TSV file saved to {tsv_file}")
 
         # Check if dataset is cached and has integrity
+        if dataset == "MME-RealWorld-Lite":
+            url = 'https://huggingface.co/datasets/yifanzhang114/MME-RealWorld-Base64/resolve/main/mme_realworld_lite.tsv'  # noqa: E501
+            file_md5 = (
+                self.DATASET_MD5[dataset] if dataset in self.DATASET_MD5 else None
+            )
+            datas = self.prepare_tsv(url, file_md5)
+            choice_prompt = "The choices are listed below:\n"
+            for index, item in datas.iterrows():
+                options = eval(item["multi-choice options"])
+                datas.loc[index, "multi-choice options"] = choice_prompt + "\n".join(
+                    options
+                )
+                datas.loc[index, "A"] = options[0][4:]
+                datas.loc[index, "B"] = options[1][4:]
+                datas.loc[index, "C"] = options[2][4:]
+                datas.loc[index, "D"] = options[3][4:]
+                datas.loc[index, "E"] = options[4][4:]
+            return datas
+
         update_flag = False
         cache_path = get_cache_path(repo_id)
         if cache_path is not None and check_integrity(cache_path):
             dataset_path = cache_path
-            print(f'Using cached dataset from {cache_path}')
+            print(f"Using cached dataset from {cache_path}")
         else:
             from huggingface_hub import snapshot_download
+
             # Download or find the dataset path
-            dataset_path = snapshot_download(repo_id=repo_id, repo_type='dataset')
+            dataset_path = snapshot_download(repo_id=repo_id, repo_type="dataset")
             generate_tsv(dataset_path)
             update_flag = True
 
-        data_path = os.path.join(dataset_path, f'{dataset}.tsv')
-        if file_size(data_path, 'GB') > 1:
-            local_path = data_path.replace('.tsv', '_local.tsv')
-            if not osp.exists(local_path) or os.environ.get('FORCE_LOCAL', None) or update_flag:
+        data_path = os.path.join(dataset_path, f"{dataset}.tsv")
+        if file_size(data_path, "GB") > 1:
+            local_path = data_path.replace(".tsv", "_local.tsv")
+            if (
+                not osp.exists(local_path)
+                or os.environ.get("FORCE_LOCAL", None)
+                or update_flag
+            ):
                 from vlmeval.tools import LOCALIZE
+
                 LOCALIZE(data_path, local_path)
             data_path = local_path
         return load(data_path)
@@ -777,3 +947,181 @@ class CustomMCQDataset(ImageMCQDataset):
                 LOCALIZE(data_path, local_path)
             data_path = local_path
         return load(data_path)
+
+
+class NaturalBenchDataset(ImageMCQDataset):
+
+    DATASET_URL = {
+        'NaturalBenchDataset': (
+            'https://huggingface.co/datasets/BaiqiL/'
+            'NaturalBench/resolve/main/NaturalBenchDataset.tsv'
+        ),
+    }
+    DATASET_MD5 = {
+        'NaturalBenchDataset':'dbe25b044bc35696426381e9ba4fe930',
+    }
+
+    def build_prompt(self, line):
+        SUFFIX_FOR_VQA = {
+            "yes_no": "Please answer Yes or No.",
+            "multiple_choice": "Please output the letter corresponding to the correct option."
+        }
+        if isinstance(line, int):
+            line = self.data.iloc[line]
+
+        if self.meta_only:
+            tgt_path = toliststr(line['image_path'])
+        else:
+            tgt_path = self.dump_image(line)
+
+        question = line['question']
+        prompt = f'{question} {SUFFIX_FOR_VQA[line["type"]]}'
+        msgs = []
+        if isinstance(tgt_path, list):
+            msgs.extend([dict(type='image', value=p) for p in tgt_path])
+        else:
+            msgs = [dict(type='image', value=tgt_path)]
+        msgs.append(dict(type='text', value=prompt))
+
+        return msgs
+
+    def evaluate(self, eval_file, **judge_kwargs):
+        from .utils.naturalbench import extract_answer, get_scores
+
+        data = load(eval_file)
+        data = data.sort_values(by='index')
+        predictions = [str(x) for x in data['prediction']]
+        answers = [str(x) for x in data['answer']]
+        indexs = [str(x) for x in data['index']]
+        meta = self.data
+        types = [str(x) for x in meta['type']]
+        results = {}
+        assert len(predictions) == len(answers) == len(indexs) == len(types) == (1900 * 4)
+        number_answered_samples = len(predictions) // 4
+        for i in range(number_answered_samples):
+            results[i] = {
+                "q0_i0": extract_answer(predictions[i * 4], types[i * 4]),
+                "q0_i1": extract_answer(predictions[i * 4 + 1], types[i * 4 + 1]),
+                "q1_i0": extract_answer(predictions[i * 4 + 2], types[i * 4 + 2]),
+                "q1_i1": extract_answer(predictions[i * 4 + 3], types[i * 4 + 3])
+            }
+
+        scores = get_scores(results)
+        print(scores)
+        score_file = 'NaturalBench_acc.csv'
+        df = pd.DataFrame(list(scores.items()), columns=['Metric', 'Score'])
+        dump(df, score_file)
+
+        return scores
+
+
+class WeMath(ImageBaseDataset):
+    TYPE = 'MCQ'
+    DATASET_URL = {
+        'WeMath': 'https://opencompass.openxlab.space/utils/VLMEval/WeMath.tsv',
+        'WeMath_COT': 'https://opencompass.openxlab.space/utils/VLMEval/WeMath.tsv',
+    }
+    DATASET_MD5 = {'WeMath': 'b5e969a075f01290a542411fb7766388',
+                   'WeMath_COT': 'b5e969a075f01290a542411fb7766388'}
+
+    def build_prompt(self, line):
+        if isinstance(line, int):
+            line = self.data.iloc[line]
+
+        if self.meta_only:
+            tgt_path = toliststr(line['image_path'])
+        else:
+            tgt_path = self.dump_image(line)
+
+        question = line['question']
+        options = {
+            cand: line[cand]
+            for cand in string.ascii_uppercase
+            if cand in line and not pd.isna(line[cand])
+        }
+        options_prompt = 'Options:\n'
+        for key, item in options.items():
+            options_prompt += f'{key}. {item}\n'
+        hint = line['hint'] if ('hint' in line and not pd.isna(line['hint'])) else None
+        prompt = ''
+        if hint is not None:
+            prompt += f'Hint: {hint}\n'
+        prompt += f'Question: {question}\n'
+        if len(options):
+            prompt += options_prompt
+
+        if 'COT' in self.dataset_name:
+            requirement = line['requirement']
+            if requirement is not None:
+                prompt += f'\n{requirement}'
+
+        msgs = []
+        if isinstance(tgt_path, list):
+            msgs.extend([dict(type='image', value=p) for p in tgt_path])
+        else:
+            msgs = [dict(type='image', value=tgt_path)]
+        msgs.append(dict(type='text', value=prompt))
+
+        return msgs
+
+    def evaluate(self, eval_file, **judge_kwargs):
+        from .utils.wemath import wemath_evaluate_models, wemath_accuracy
+        from .utils.multiple_choice import mcq_vanilla_eval
+
+        # model = judge_kwargs['model']
+        model = judge_kwargs.get('model', 'exact_matching')
+        assert model in ['exact_matching', 'gpt-4-0125', 'gpt-4-turbo', 'gpt-4o-mini'], model
+        name_str_map = {'gpt-4-0125': 'gpt4', 'gpt-4-turbo': 'gpt4-turbo', 'gpt-4o-mini': 'gpt4o-mini'}
+        name_str = name_str_map[model] if model in name_str_map else model
+
+        if model == 'exact_matching':
+            model = None
+        elif gpt_key_set():
+            model = build_judge(**judge_kwargs)
+            if not model.working():
+                warnings.warn('OPENAI API is not working properly, will use exact matching for evaluation')
+                warnings.warn(DEBUG_MESSAGE)
+                model = None
+        else:
+            warnings.warn('OPENAI_API_KEY is not set properly, will use exact matching for evaluation')
+            model = None
+
+        suffix = eval_file.split('.')[-1]
+        storage = eval_file.replace(f'.{suffix}', f'_{name_str}.xlsx')
+        nproc = judge_kwargs.pop('nproc', 4)
+
+        if not osp.exists(storage) and model is not None:
+            data = load(eval_file)
+            result_file = eval_file.replace(f'.{suffix}', f'_{name_str}_result.pkl')
+
+            data = load(eval_file)
+            data = data.sort_values(by='index')
+            data['prediction'] = [str(x) for x in data['prediction']]
+            # If not choice label, then use lower case
+            for k in data.keys():
+                data[k.lower() if k not in list(string.ascii_uppercase) else k] = data.pop(k)
+
+            meta = self.data
+            meta_q_map = {x: y for x, y in zip(meta['index'], meta['question'])}
+            data_map = {x: y for x, y in zip(data['index'], data['question'])}
+            for k in data_map:
+                assert k in meta_q_map, (
+                    f'eval_file should be the same as or a subset of dataset {self.dataset_name}'
+                )
+            data = mcq_vanilla_eval(model, data, meta, nproc, result_file, self.dataset_name)
+
+            if 'id' in data.columns:
+                # 更改列名
+                data.rename(columns={'id': 'ID'}, inplace=True)
+            dump(data, storage)
+        if osp.exists(storage):
+            accuracy_scores = wemath_evaluate_models(storage)
+            four_dim_scores = wemath_accuracy(storage)
+        else:
+            accuracy_scores = wemath_evaluate_models(eval_file)
+            four_dim_scores = wemath_accuracy(eval_file)
+        combine_score = {**accuracy_scores, **four_dim_scores}
+        combine_score = pd.DataFrame(combine_score)
+        score_pth = storage.replace('.xlsx', '_score.csv')
+        dump(combine_score, score_pth)
+        return combine_score
